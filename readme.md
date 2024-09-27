@@ -1,0 +1,12 @@
+# Elysium language
+
+A follow-along implementation of this tutorial:
+
+https://lunacookies.github.io/lang/
+
+
+Progress marker:
+
+Up to here in the tutorial: Part 17
+start of page
+https://lunacookies.github.io/lang/17/

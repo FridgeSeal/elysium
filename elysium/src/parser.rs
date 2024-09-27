@@ -1,15 +1,17 @@
 //! Core parsing logic.
 mod event;
 mod expr;
+mod marker;
 mod sink;
 mod source;
 
 use crate::{
-    lexer::{Lexeme, Lexer, SyntaxKind},
-    syntax::SyntaxNode,
+    lexer::{Lexer, Token},
+    syntax::{SyntaxKind, SyntaxNode},
 };
 use event::Event;
 use expr::expr;
+use marker::Marker;
 use rowan::GreenNode;
 use sink::Sink;
 use source::Source;
@@ -32,48 +34,38 @@ pub fn parse(input: &str) -> Parse {
 }
 
 impl<'l, 'input> Parser<'l, 'input> {
-    pub const fn new(lexemes: &'l [Lexeme<'input>]) -> Self {
+    pub const fn new(lexemes: &'l [Token<'input>]) -> Self {
         Self {
             source: Source::new(lexemes),
             events: Vec::new(),
         }
     }
 
+    fn start(&mut self) -> Marker {
+        let pos = self.events.len();
+        self.events.push(Event::Placeholder);
+        Marker::new(pos)
+    }
+
     fn parse(mut self) -> Vec<Event> {
-        self.start_node(SyntaxKind::Root);
+        let m = self.start();
         expr(&mut self);
-        self.finish_node();
+        m.complete(&mut self, SyntaxKind::Root);
 
         self.events
     }
 
     fn peek(&mut self) -> Option<SyntaxKind> {
-        self.source.peek_kind()
-    }
-
-    fn start_node(&mut self, kind: SyntaxKind) {
-        self.events.push(Event::Startnode { kind });
-        // self.builder.start_node(ElysiumLanguage::kind_to_raw(kind));
-    }
-
-    fn finish_node(&mut self) {
-        self.events.push(Event::FinishNode);
+        self.source.peek_kind().map(|x| x.into())
     }
 
     fn bump(&mut self) {
-        let Lexeme { kind, text } = self.source.next_lexeme().unwrap();
-        self.events.push(Event::AddToken {
-            kind: *kind,
-            text: (*text).to_string(),
-        });
+        self.source.next_token().unwrap();
+        self.events.push(Event::AddToken);
     }
 
-    fn start_node_at(&mut self, checkpoint: usize, kind: SyntaxKind) {
-        self.events.push(Event::StartNodeAt { kind, checkpoint });
-    }
-
-    fn checkpoint(&self) -> usize {
-        self.events.len()
+    fn at(&mut self, kind: SyntaxKind) -> bool {
+        self.peek() == Some(kind)
     }
 }
 
@@ -112,5 +104,15 @@ mod tests {
 Root@0..3
   Whitespace@0..3 "   ""#]],
         );
+    }
+
+    #[test]
+    fn parse_comment() {
+        check(
+            "# hello!",
+            expect![[r##"
+Root@0..8
+  Comment@0..8 "# hello!""##]],
+        )
     }
 }

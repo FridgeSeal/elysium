@@ -5,7 +5,6 @@ use std::io::{self, Write};
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
-    // let stderr = io::stderr();
 
     let mut input = String::new();
 

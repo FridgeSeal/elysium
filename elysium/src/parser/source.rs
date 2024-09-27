@@ -1,38 +1,42 @@
-use crate::lexer::{Lexeme, SyntaxKind};
+use crate::{lexer::Token, syntax::SyntaxKind};
 
-pub(super) struct Source<'l, 'input> {
-    lexemes: &'l [Lexeme<'input>],
+pub(super) struct Source<'t, 'input> {
+    tokens: &'t [Token<'input>],
     cursor: usize,
 }
 
-impl<'l, 'input> Source<'l, 'input> {
-    pub(super) const fn new(lexemes: &'l [Lexeme<'input>]) -> Self {
-        Self { lexemes, cursor: 0 }
+impl<'t, 'input> Source<'t, 'input> {
+    pub(super) const fn new(tokens: &'t [Token<'input>]) -> Self {
+        Self { tokens, cursor: 0 }
     }
 
-    pub(super) fn next_lexeme(&mut self) -> Option<&'l Lexeme<'input>> {
-        self.eat_whitespace();
+    pub(super) fn next_token(&mut self) -> Option<&'t Token<'input>> {
+        self.eat_trivia();
 
-        let lexeme = self.lexemes.get(self.cursor)?;
+        let token = self.tokens.get(self.cursor)?;
         self.cursor += 1;
 
-        Some(lexeme)
+        Some(token)
     }
 
     pub(super) fn peek_kind(&mut self) -> Option<SyntaxKind> {
-        self.eat_whitespace();
+        self.eat_trivia();
         self.peek_kind_raw()
     }
 
-    fn eat_whitespace(&mut self) {
-        while self.peek_kind_raw() == Some(SyntaxKind::Whitespace) {
+    fn peek_kind_raw(&self) -> Option<SyntaxKind> {
+        self.tokens
+            .get(self.cursor)
+            .map(|Token { kind, .. }| (*kind).into())
+    }
+
+    fn eat_trivia(&mut self) {
+        while self.at_trivia() {
             self.cursor += 1;
         }
     }
 
-    fn peek_kind_raw(&self) -> Option<SyntaxKind> {
-        self.lexemes
-            .get(self.cursor)
-            .map(|Lexeme { kind, .. }| *kind)
+    fn at_trivia(&self) -> bool {
+        self.peek_kind_raw().map_or(false, SyntaxKind::is_trivia)
     }
 }

@@ -1,70 +1,83 @@
 use super::event::Event;
 use crate::{
-    lexer::{Lexeme, SyntaxKind},
-    syntax::ElysiumLanguage,
+    lexer::Token,
+    syntax::{ElysiumLanguage, SyntaxKind},
 };
 use rowan::{GreenNode, GreenNodeBuilder, Language};
+use std::mem;
 
 pub(super) struct Sink<'l, 'input> {
     builder: GreenNodeBuilder<'static>,
-    lexemes: &'l [Lexeme<'input>],
+    tokens: &'l [Token<'input>],
     cursor: usize,
     events: Vec<Event>,
 }
 
 impl<'l, 'input> Sink<'l, 'input> {
-    pub(super) fn new(lexemes: &'l [Lexeme<'input>], events: Vec<Event>) -> Self {
+    pub(super) fn new(tokens: &'l [Token<'input>], events: Vec<Event>) -> Self {
         Self {
             builder: GreenNodeBuilder::new(),
-            lexemes,
+            tokens,
             cursor: 0,
             events,
         }
     }
 
     pub(super) fn finish(mut self) -> GreenNode {
-        let mut reordered_events = self.events.clone();
+        for idx in 0..self.events.len() {
+            match mem::replace(&mut self.events[idx], Event::Placeholder) {
+                Event::Startnode {
+                    kind,
+                    forward_parent,
+                } => {
+                    let mut kinds = vec![kind];
+                    let mut idx = idx;
+                    let mut forward_parent = forward_parent;
+                    while let Some(fp) = forward_parent {
+                        idx += fp;
+                        forward_parent = if let Event::Startnode {
+                            kind,
+                            forward_parent,
+                        } =
+                            mem::replace(&mut self.events[idx], Event::Placeholder)
+                        {
+                            kinds.push(kind);
+                            forward_parent
+                        } else {
+                            unreachable!()
+                        }
+                    }
 
-        for (idx, event) in self.events.iter().enumerate() {
-            if let Event::StartNodeAt { kind, checkpoint } = event {
-                reordered_events.remove(idx);
-                reordered_events.insert(*checkpoint, Event::Startnode { kind: *kind });
-            }
-        }
-        for event in reordered_events {
-            match event {
-                Event::Startnode { kind } => {
-                    self.builder.start_node(ElysiumLanguage::kind_to_raw(kind));
+                    for kind in kinds.into_iter().rev() {
+                        self.builder.start_node(ElysiumLanguage::kind_to_raw(kind));
+                    }
                 }
-                Event::StartNodeAt { .. } => unreachable!(),
 
-                Event::AddToken { kind, text } => self.token(kind, &text),
+                Event::AddToken => self.token(),
                 Event::FinishNode => self.builder.finish_node(),
+                Event::Placeholder => {}
             }
 
-            self.eat_whitespace();
+            self.eat_trivia();
         }
 
         self.builder.finish()
     }
 
-    fn token(&mut self, kind: SyntaxKind, text: &str) {
-        self.builder.token(ElysiumLanguage::kind_to_raw(kind), text);
+    fn token(&mut self) {
+        let Token { kind, text } = self.tokens[self.cursor];
+        self.builder
+            .token(ElysiumLanguage::kind_to_raw(kind.into()), text);
         self.cursor += 1;
     }
 
-    fn eat_whitespace(&mut self) {
-        while let Some(lexeme) = self.lexemes.get(self.cursor) {
-            if lexeme.kind != SyntaxKind::Whitespace {
+    fn eat_trivia(&mut self) {
+        while let Some(token) = self.tokens.get(self.cursor) {
+            if !SyntaxKind::from(token.kind).is_trivia() {
                 break;
             }
 
-            self.token(lexeme.kind, lexeme.text);
+            self.token();
         }
     }
 }
-
-/*
-Up to here in the tutorial: page 14
-start of page
-*/

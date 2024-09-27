@@ -1,0 +1,15 @@
+[package]
+name = "elysium"
+version.workspace = true
+edition.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+logos.workspace = true
+num-derive.workspace = true
+num-traits.workspace = true
+rowan.workspace = true
+
+[dev-dependencies]
+expect-test.workspace = true

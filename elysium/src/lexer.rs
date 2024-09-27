@@ -29,7 +29,7 @@ pub(crate) enum SyntaxKind {
     LBrace,
     #[token("}")]
     RBrace,
-    #[error]
+    // #[error]
     Error,
     BinaryExpr,
     Root,
@@ -56,7 +56,10 @@ impl<'a> Iterator for Lexer<'a> {
     type Item = Lexeme<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let kind = self.inner.next()?;
+        let Ok(kind) = self.inner.next()? else {
+            return None;
+        };
+
         let text = self.inner.slice();
 
         Some(Self::Item { kind, text })

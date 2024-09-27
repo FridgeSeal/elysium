@@ -1,2 +1,12 @@
 [workspace]
-members = ["crates/*"]
+resolver = "2"
+members = ["elysium", "elysium-cli"]
+package.version = "0.1.0"
+package.edition = "2021"
+
+[workspace.dependencies]
+expect-test = "1.5.0"
+logos = "0.14.2"
+num-derive = "0.4.2"
+num-traits = "0.2.19"
+rowan = "0.15.16"

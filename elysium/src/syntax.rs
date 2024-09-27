@@ -1,10 +1,10 @@
 use crate::lexer::SyntaxKind;
 use num_traits::{FromPrimitive, ToPrimitive};
 
-pub(crate) type SyntaxNode = rowan::SyntaxNode<ElysiumLanguage>;
+pub type SyntaxNode = rowan::SyntaxNode<ElysiumLanguage>;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum ElysiumLanguage {}
+pub enum ElysiumLanguage {}
 
 impl rowan::Language for ElysiumLanguage {
     type Kind = SyntaxKind;

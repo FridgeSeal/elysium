@@ -1,3 +1,4 @@
+//! Core parsing logic.
 mod event;
 mod expr;
 mod sink;
@@ -18,6 +19,7 @@ struct Parser<'l, 'input> {
     events: Vec<Event>,
 }
 
+/// Parses an input string into a full AST representation.
 pub fn parse(input: &str) -> Parse {
     let lexemes: Vec<_> = Lexer::new(input).collect();
     let parser = Parser::new(&lexemes);
@@ -30,7 +32,7 @@ pub fn parse(input: &str) -> Parse {
 }
 
 impl<'l, 'input> Parser<'l, 'input> {
-    pub fn new(lexemes: &'l [Lexeme<'input>]) -> Self {
+    pub const fn new(lexemes: &'l [Lexeme<'input>]) -> Self {
         Self {
             source: Source::new(lexemes),
             events: Vec::new(),
@@ -62,7 +64,7 @@ impl<'l, 'input> Parser<'l, 'input> {
         let Lexeme { kind, text } = self.source.next_lexeme().unwrap();
         self.events.push(Event::AddToken {
             kind: *kind,
-            text: text.to_string(),
+            text: (*text).to_string(),
         });
     }
 
@@ -75,14 +77,16 @@ impl<'l, 'input> Parser<'l, 'input> {
     }
 }
 
+/// AST like structure.
 pub struct Parse {
     green_node: GreenNode,
 }
 
 impl Parse {
+    /// Produces the debug-friend representation of the AST.
     pub fn debug_tree(&self) -> String {
         let syntax_node = SyntaxNode::new_root(self.green_node.clone());
-        let formatted = format!("{:#?}", syntax_node);
+        let formatted = format!("{syntax_node:#?}");
 
         formatted[0..formatted.len() - 1].to_string()
     }
@@ -94,6 +98,7 @@ mod tests {
 
     use expect_test::{expect, Expect};
 
+    #[allow(clippy::needless_pass_by_value)]
     fn check(input: &str, expected_tree: Expect) {
         let parse = parse(input);
         expected_tree.assert_eq(&parse.debug_tree());

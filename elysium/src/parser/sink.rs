@@ -34,7 +34,7 @@ impl<'l, 'input> Sink<'l, 'input> {
         for event in reordered_events {
             match event {
                 Event::Startnode { kind } => {
-                    self.builder.start_node(ElysiumLanguage::kind_to_raw(kind))
+                    self.builder.start_node(ElysiumLanguage::kind_to_raw(kind));
                 }
                 Event::StartNodeAt { .. } => unreachable!(),
 
@@ -59,7 +59,7 @@ impl<'l, 'input> Sink<'l, 'input> {
                 break;
             }
 
-            self.token(lexeme.kind, lexeme.text)
+            self.token(lexeme.kind, lexeme.text);
         }
     }
 }

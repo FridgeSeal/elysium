@@ -1,0 +1,23 @@
+[build]
+rustflags = [
+    "-Ctarget-cpu=native",
+    "-Wclippy::pedantic",
+    "-Dclippy::nursery",
+    "-Aclippy::must_use_candidate",
+    "-Aclippy::module_name_repetitions",
+    "-Dclippy::await_holding_lock",
+    "-Dclippy::mutex_integer",
+    "-Dclippy::inefficient_to_string",
+    "-Wclippy::todo",
+    "-Dclippy::wildcard_imports",
+    "-Wdead_code",
+    "-Wwarnings",
+    "-Wmissing_docs",
+    # "--cfg",
+    # "tokio_unstable",
+]
+
+# rustdocflags = ["-Wwarnings", "-Arustdoc::private_intra_doc_links"]
+
+[registries.crates-io]
+protocol = "sparse"

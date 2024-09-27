@@ -4,7 +4,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 #[derive(
     Debug, Copy, Clone, PartialEq, Logos, FromPrimitive, ToPrimitive, Hash, PartialOrd, Ord, Eq,
 )]
-pub(crate) enum SyntaxKind {
+pub enum SyntaxKind {
     #[regex(" +")]
     Whitespace,
     #[token("fn")]
@@ -40,7 +40,7 @@ pub(crate) enum SyntaxKind {
     RParen,
 }
 
-pub(crate) struct Lexer<'a> {
+pub struct Lexer<'a> {
     inner: logos::Lexer<'a, SyntaxKind>,
 }
 
@@ -66,8 +66,8 @@ impl<'a> Iterator for Lexer<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub(crate) struct Lexeme<'a> {
+#[derive(Debug, PartialEq, Eq)]
+pub struct Lexeme<'a> {
     pub(crate) kind: SyntaxKind,
     pub(crate) text: &'a str,
 }
@@ -84,12 +84,12 @@ mod tests {
 
     #[test]
     fn lex_spaces() {
-        check("  ", SyntaxKind::Whitespace)
+        check("  ", SyntaxKind::Whitespace);
     }
 
     #[test]
     fn lex_fn_keyword() {
-        check("fn", SyntaxKind::FnKw)
+        check("fn", SyntaxKind::FnKw);
     }
     #[test]
     fn lex_let_keyword() {

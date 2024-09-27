@@ -60,7 +60,7 @@ enum InfixOp {
 }
 
 impl InfixOp {
-    fn binding_power(&self) -> (u8, u8) {
+    const fn binding_power(&self) -> (u8, u8) {
         match self {
             Self::Add | Self::Sub => (1, 2),
             Self::Mul | Self::Div => (3, 4),
@@ -73,7 +73,7 @@ enum PrefixOp {
 }
 
 impl PrefixOp {
-    fn binding_power(&self) -> ((), u8) {
+    const fn binding_power(&self) -> ((), u8) {
         match self {
             Self::Neg => ((), 5),
         }
@@ -83,10 +83,9 @@ impl PrefixOp {
 #[cfg(test)]
 mod tests {
     use crate::parser::parse;
-
-    use super::*;
     use expect_test::{expect, Expect};
 
+    #[allow(clippy::needless_pass_by_value)]
     fn check(input: &str, expected_tree: Expect) {
         let parse = parse(input);
         expected_tree.assert_eq(&parse.debug_tree());
@@ -261,7 +260,7 @@ Root@0..12
   Whitespace@0..3 "   "
   Number@3..8 "28934"
   Whitespace@8..12 "    ""#]],
-        )
+        );
     }
 
     #[test]

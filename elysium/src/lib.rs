@@ -1,3 +1,4 @@
+//! Core functionality for parser.
 pub mod parser;
 
 mod lexer;

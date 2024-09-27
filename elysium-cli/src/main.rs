@@ -1,3 +1,4 @@
+//! Little CLI to drive our core parsing/language logid.
 use elysium::parser::parse;
 use std::io::{self, Write};
 

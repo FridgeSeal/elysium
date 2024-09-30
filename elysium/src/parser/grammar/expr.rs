@@ -1,6 +1,5 @@
-use crate::parser::CompletedMarker;
-
 use super::{Parser, SyntaxKind};
+use crate::parser::CompletedMarker;
 
 pub(super) fn expr(p: &mut Parser) -> Option<CompletedMarker> {
     expr_binding_power(p, 0)
@@ -40,7 +39,7 @@ fn variable_ref(p: &mut Parser<'_, '_>) -> Option<CompletedMarker> {
     assert!(p.at(SyntaxKind::Ident));
     let m = p.start();
     p.bump();
-    Some(m.complete(p, SyntaxKind::Literal))
+    Some(m.complete(p, SyntaxKind::VariableRef))
 }
 
 fn literal(p: &mut Parser<'_, '_>) -> Option<CompletedMarker> {
@@ -59,7 +58,7 @@ fn expr_binding_power(p: &mut Parser, minimum_binding_power: u8) -> Option<Compl
             Some(SyntaxKind::Minus) => BinaryOp::Sub,
             Some(SyntaxKind::Star) => BinaryOp::Mul,
             Some(SyntaxKind::Slash) => BinaryOp::Div,
-            _ => return None,
+            _ => break,
         };
 
         let (left_binding_power, right_binding_power) = op.binding_power();
@@ -108,14 +107,8 @@ impl UnaryOp {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::parse;
-    use expect_test::{expect, Expect};
-
-    #[allow(clippy::needless_pass_by_value)]
-    fn check(input: &str, expected_tree: Expect) {
-        let parse = parse(input);
-        expected_tree.assert_eq(&parse.debug_tree());
-    }
+    use crate::tests::check;
+    use expect_test::expect;
 
     #[test]
     fn parse_number() {
@@ -134,7 +127,7 @@ mod tests {
             "counter",
             expect![[r#"
                 Root@0..7
-                  Literal@0..7
+                  VariableRef@0..7
                     Ident@0..7 "counter""#]],
         );
     }

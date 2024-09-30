@@ -8,6 +8,8 @@ use source::Source;
 
 use super::{event, grammar, marker, sink, source};
 
+const RECOVERY_SET: [SyntaxKind; 1] = [SyntaxKind::LetKw];
+
 /// Parses an input string into a full AST representation.
 pub fn parse(input: &str) -> Parse {
     let tokens: Vec<_> = Lexer::new(input).collect();
@@ -53,7 +55,7 @@ impl<'t, 'input> Parser<'t, 'input> {
     }
 
     pub(crate) fn peek(&mut self) -> Option<SyntaxKind> {
-        self.source.peek_kind() // laz.map(|x| x.into())
+        self.source.peek_kind() // lazq qgrgcargo depgraph --all-deps | dot -Tsvg > graph.svg.map(|x| x.into())
     }
 
     pub(crate) fn bump(&mut self) {
@@ -63,5 +65,23 @@ impl<'t, 'input> Parser<'t, 'input> {
 
     pub(crate) fn at(&mut self, kind: SyntaxKind) -> bool {
         self.peek() == Some(kind)
+    }
+
+    pub(crate) fn expect(&mut self, kind: SyntaxKind) {
+        if self.at(kind) {
+            self.bump();
+        } else {
+            self.error();
+        }
+    }
+
+    pub(crate) fn error(&mut self) {
+        if !self.at_set(&RECOVERY_SET) {
+            self.bump();
+        }
+    }
+
+    fn at_set(&mut self, set: &[SyntaxKind]) -> bool {
+        self.peek().map_or(false, |k| set.contains(&k))
     }
 }

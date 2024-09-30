@@ -30,7 +30,7 @@ mod tests {
     use crate::parser::parse;
 
     #[allow(clippy::needless_pass_by_value)]
-    fn check(input: &str, expected_tree: Expect) {
+    pub fn check(input: &str, expected_tree: Expect) {
         let parse = parse(input);
         expected_tree.assert_eq(&parse.debug_tree());
     }

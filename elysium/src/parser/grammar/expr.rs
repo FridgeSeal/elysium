@@ -1,8 +1,9 @@
-use super::{marker::CompletedMarker, Parser};
-use crate::syntax::SyntaxKind;
+use crate::parser::CompletedMarker;
 
-pub(super) fn expr(p: &mut Parser) {
-    expr_binding_power(p, 0);
+use super::{Parser, SyntaxKind};
+
+pub(super) fn expr(p: &mut Parser) -> Option<CompletedMarker> {
+    expr_binding_power(p, 0)
 }
 
 fn lhs(p: &mut Parser) -> Option<CompletedMarker> {
@@ -49,12 +50,8 @@ fn literal(p: &mut Parser<'_, '_>) -> Option<CompletedMarker> {
     Some(m.complete(p, SyntaxKind::Literal))
 }
 
-fn expr_binding_power(p: &mut Parser, minimum_binding_power: u8) {
-    let mut lhs = if let Some(lhs) = lhs(p) {
-        lhs
-    } else {
-        return;
-    };
+fn expr_binding_power(p: &mut Parser, minimum_binding_power: u8) -> Option<CompletedMarker> {
+    let mut lhs = lhs(p)?;
 
     loop {
         let op = match p.peek() {
@@ -62,13 +59,13 @@ fn expr_binding_power(p: &mut Parser, minimum_binding_power: u8) {
             Some(SyntaxKind::Minus) => BinaryOp::Sub,
             Some(SyntaxKind::Star) => BinaryOp::Mul,
             Some(SyntaxKind::Slash) => BinaryOp::Div,
-            _ => return,
+            _ => return None,
         };
 
         let (left_binding_power, right_binding_power) = op.binding_power();
 
         if left_binding_power < minimum_binding_power {
-            return;
+            break;
         }
 
         p.bump();
@@ -78,6 +75,7 @@ fn expr_binding_power(p: &mut Parser, minimum_binding_power: u8) {
 
         lhs = m.complete(p, SyntaxKind::InfixExpr);
     }
+    Some(lhs)
 }
 
 enum BinaryOp {

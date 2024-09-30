@@ -6,7 +6,7 @@ use crate::{
 use rowan::{GreenNode, GreenNodeBuilder, Language};
 use std::mem;
 
-pub(super) struct Sink<'l, 'input> {
+pub struct Sink<'l, 'input> {
     builder: GreenNodeBuilder<'static>,
     tokens: &'l [Token<'input>],
     cursor: usize,
@@ -14,7 +14,7 @@ pub(super) struct Sink<'l, 'input> {
 }
 
 impl<'l, 'input> Sink<'l, 'input> {
-    pub(super) fn new(tokens: &'l [Token<'input>], events: Vec<Event>) -> Self {
+    pub fn new(tokens: &'l [Token<'input>], events: Vec<Event>) -> Self {
         Self {
             builder: GreenNodeBuilder::new(),
             tokens,
@@ -23,7 +23,7 @@ impl<'l, 'input> Sink<'l, 'input> {
         }
     }
 
-    pub(super) fn finish(mut self) -> GreenNode {
+    pub fn finish(mut self) -> GreenNode {
         for idx in 0..self.events.len() {
             match mem::replace(&mut self.events[idx], Event::Placeholder) {
                 Event::Startnode {

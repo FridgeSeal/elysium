@@ -1,5 +1,6 @@
 //! Little CLI to drive our core parsing/language logid.
-use elysium::parser::parse;
+// use elysium::parser::parse;
+use elysium::parse;
 use std::io::{self, Write};
 
 fn main() -> io::Result<()> {

@@ -51,15 +51,4 @@ pub enum TokenKind {
     Comment,
 
     Error,
-    // InfixExpr,
-
-    // Root,
-
-    // PrefixExpr,
-
-    // Literal,
-
-    // ParenExpr,
-
-    // VariableRef,
 }

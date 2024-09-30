@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["elysium", "elysium-cli"]
+members = ["elysium"]
 package.version = "0.1.0"
 package.edition = "2021"
 

@@ -1,7 +1,8 @@
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+//  pub use syntax::{ElysiumLanguage, SyntaxKind, SyntaxNode};
 
 use crate::lexer::TokenKind;
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
 
 pub type SyntaxNode = rowan::SyntaxNode<ElysiumLanguage>;
 
@@ -47,7 +48,7 @@ pub enum SyntaxKind {
 }
 
 impl SyntaxKind {
-    pub(crate) fn is_trivia(self) -> bool {
+    pub const fn is_trivia(self) -> bool {
         matches!(self, Self::Whitespace | Self::Comment)
     }
 }

@@ -35,9 +35,8 @@ pub struct Token<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::lexer::TokenKind;
-
     use super::*;
+    use crate::lexer::TokenKind;
 
     fn check(input: &str, kind: TokenKind) {
         let mut lexer = Lexer::new(input);

@@ -1,26 +1,26 @@
 //! Marker logic.
-use drop_bomb::DropBomb;
-
 use super::Parser;
 use crate::{parser::event::Event, syntax::SyntaxKind};
+use drop_bomb::DropBomb;
 
-pub(super) struct Marker {
+pub struct Marker {
     pos: usize,
     bomb: DropBomb,
 }
 
 impl Marker {
-    pub(super) fn new(pos: usize) -> Self {
+    pub fn new(pos: usize) -> Self {
         Self {
             pos,
             bomb: DropBomb::new("Markers _must_ be completed before being dropped!"),
         }
     }
 
-    pub(super) fn complete(mut self, p: &mut Parser, kind: SyntaxKind) -> CompletedMarker {
+    pub(crate) fn complete(mut self, p: &mut Parser, kind: SyntaxKind) -> CompletedMarker {
         self.bomb.defuse();
 
-        let event_at_pos = &mut p.events[self.pos];
+        // let event_at_pos = &mut p.events[self.pos];
+        let event_at_pos = p.event_at_mut(self.pos);
         assert_eq!(*event_at_pos, Event::Placeholder);
 
         *event_at_pos = Event::Startnode {
@@ -28,24 +28,24 @@ impl Marker {
             forward_parent: None,
         };
 
-        p.events.push(Event::FinishNode);
+        p.emit_event(Event::FinishNode);
 
         CompletedMarker { pos: self.pos }
     }
 }
 
-pub(super) struct CompletedMarker {
+pub struct CompletedMarker {
     pos: usize,
 }
 
 impl CompletedMarker {
-    pub(super) fn precede(self, p: &mut Parser) -> Marker {
+    pub fn precede(self, p: &mut Parser) -> Marker {
         let new_m = p.start();
 
         if let Event::Startnode {
             ref mut forward_parent,
             ..
-        } = p.events[self.pos]
+        } = p.event_at_mut(self.pos)
         {
             *forward_parent = Some(new_m.pos - self.pos);
         } else {

@@ -8,5 +8,5 @@ https://lunacookies.github.io/lang/
 Progress marker:
 
 Up to here in the tutorial: Part 19
-beginning of page
+up to text: To determine a VariableDef’s name, we would want to iterate
 https://lunacookies.github.io/lang/19/

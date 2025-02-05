@@ -48,12 +48,6 @@ pub enum SyntaxKind {
     VariableDef,
 }
 
-impl SyntaxKind {
-    pub const fn is_trivia(self) -> bool {
-        matches!(self, Self::Whitespace | Self::Comment)
-    }
-}
-
 impl From<TokenKind> for SyntaxKind {
     fn from(token: TokenKind) -> Self {
         match token {

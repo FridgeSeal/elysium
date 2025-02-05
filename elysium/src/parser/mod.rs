@@ -8,4 +8,4 @@ mod sink;
 mod source;
 
 pub use marker::CompletedMarker;
-pub use parser::{parse, Parser};
+pub use parser::{parse, ParseError, Parser};

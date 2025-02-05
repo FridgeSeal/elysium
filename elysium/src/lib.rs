@@ -11,15 +11,24 @@ pub use parser::parse;
 /// AST like structure.
 pub struct Parse {
     green_node: GreenNode,
+    errors: Vec<parser::ParseError>,
 }
 
 impl Parse {
     /// Produces the debug-friend representation of the AST.
     pub fn debug_tree(&self) -> String {
-        let syntax_node = SyntaxNode::new_root(self.green_node.clone());
-        let formatted = format!("{syntax_node:#?}");
+        let mut s = String::new();
 
-        formatted[0..formatted.len() - 1].to_string()
+        let syntax_node = SyntaxNode::new_root(self.green_node.clone());
+        let tree = format!("{syntax_node:#?}");
+
+        s.push_str(&tree[0..tree.len() - 1]);
+
+        for error in &self.errors {
+            s.push_str(&format!("\n{error}"));
+        }
+
+        s
     }
 }
 

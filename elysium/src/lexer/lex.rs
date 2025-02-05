@@ -1,5 +1,8 @@
+use std::ops::Range;
+
 use super::TokenKind;
 use logos::Logos;
+use rowan::{TextRange, TextSize};
 
 pub struct Lexer<'a> {
     inner: logos::Lexer<'a, TokenKind>,
@@ -20,10 +23,16 @@ impl<'a> Iterator for Lexer<'a> {
         let Ok(kind) = self.inner.next()? else {
             return None;
         };
-
         let text = self.inner.slice();
+        let range = {
+            let Range { start, end } = self.inner.span();
+            let start = TextSize::try_from(start).ok()?;
+            let end = TextSize::try_from(end).ok()?;
 
-        Some(Self::Item { kind, text })
+            TextRange::new(start, end)
+        };
+
+        Some(Self::Item { kind, text, range })
     }
 }
 
@@ -31,6 +40,7 @@ impl<'a> Iterator for Lexer<'a> {
 pub struct Token<'a> {
     pub(crate) kind: TokenKind,
     pub(crate) text: &'a str,
+    pub(crate) range: TextRange,
 }
 
 #[cfg(test)]
@@ -41,7 +51,9 @@ mod tests {
     fn check(input: &str, kind: TokenKind) {
         let mut lexer = Lexer::new(input);
 
-        assert_eq!(lexer.next(), Some(Token { kind, text: input }));
+        let token = lexer.next().unwrap();
+        assert_eq!(token.kind, kind);
+        assert_eq!(token.text, input);
     }
 
     #[test]

@@ -1,9 +1,6 @@
-use super::event::Event;
-use crate::{
-    lexer::Token,
-    syntax::{ElysiumLanguage, SyntaxKind},
-};
-use rowan::{GreenNode, GreenNodeBuilder, Language};
+use super::{event::Event, parser::ParseError};
+use crate::{lexer::Token, syntax::ElysiumLanguage, Parse};
+use rowan::{GreenNodeBuilder, Language};
 use std::mem;
 
 pub struct Sink<'l, 'input> {
@@ -11,6 +8,7 @@ pub struct Sink<'l, 'input> {
     tokens: &'l [Token<'input>],
     cursor: usize,
     events: Vec<Event>,
+    errors: Vec<ParseError>,
 }
 
 impl<'l, 'input> Sink<'l, 'input> {
@@ -20,10 +18,11 @@ impl<'l, 'input> Sink<'l, 'input> {
             tokens,
             cursor: 0,
             events,
+            errors: Vec::new(),
         }
     }
 
-    pub fn finish(mut self) -> GreenNode {
+    pub fn finish(mut self) -> Parse {
         for idx in 0..self.events.len() {
             match mem::replace(&mut self.events[idx], Event::Placeholder) {
                 Event::Startnode {
@@ -55,17 +54,21 @@ impl<'l, 'input> Sink<'l, 'input> {
 
                 Event::AddToken => self.token(),
                 Event::FinishNode => self.builder.finish_node(),
+                Event::Error(err) => self.errors.push(err),
                 Event::Placeholder => {}
             }
 
             self.eat_trivia();
         }
 
-        self.builder.finish()
+        Parse {
+            green_node: self.builder.finish(),
+            errors: self.errors,
+        }
     }
 
     fn token(&mut self) {
-        let Token { kind, text } = self.tokens[self.cursor];
+        let Token { kind, text, .. } = self.tokens[self.cursor];
         self.builder
             .token(ElysiumLanguage::kind_to_raw(kind.into()), text);
         self.cursor += 1;
@@ -73,7 +76,7 @@ impl<'l, 'input> Sink<'l, 'input> {
 
     fn eat_trivia(&mut self) {
         while let Some(token) = self.tokens.get(self.cursor) {
-            if !SyntaxKind::from(token.kind).is_trivia() {
+            if !token.kind.is_trivia() {
                 break;
             }
 

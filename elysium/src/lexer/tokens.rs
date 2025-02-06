@@ -55,7 +55,7 @@ pub enum TokenKind {
 }
 
 impl TokenKind {
-    pub fn is_trivia(self) -> bool {
+    pub const fn is_trivia(self) -> bool {
         matches!(self, Self::Whitespace | Self::Comment)
     }
 }

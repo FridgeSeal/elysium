@@ -1,6 +1,5 @@
 //! Little CLI to drive our core parsing/language logid.
-// use elysium::parser::parse;
-use elysium::parse;
+use elysium::{parse, Root, Stmt};
 use std::io::{self, Write};
 
 fn main() -> io::Result<()> {
@@ -17,6 +16,17 @@ fn main() -> io::Result<()> {
 
         let parse = parse(&input);
         println!("{}", parse.debug_tree());
+
+        let root = Root::cast(parse.syntax()).unwrap();
+
+        dbg!(root
+            .stmts()
+            .filter_map(|stmt| if let Stmt::VariableDef(var_def) = stmt {
+                Some(var_def.value())
+            } else {
+                None
+            })
+            .collect::<Vec<_>>());
 
         input.clear();
     }

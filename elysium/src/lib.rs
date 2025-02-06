@@ -1,9 +1,10 @@
+// #![allow(dead_code)]
 //! Core functionality for parser.
 
 use rowan::GreenNode;
 use syntax::SyntaxNode;
 mod ast;
-mod hir;
+pub mod hir;
 mod lexer;
 mod parser;
 mod syntax;

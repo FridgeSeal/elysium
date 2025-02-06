@@ -1,5 +1,5 @@
 //! Little CLI to drive our core parsing/language logid.
-use elysium::{parse, Root, Stmt};
+use elysium::{parse, Root, Stmt, hir};
 use std::io::{self, Write};
 
 fn main() -> io::Result<()> {
@@ -28,6 +28,9 @@ fn main() -> io::Result<()> {
             })
             .collect::<Vec<_>>());
 
+
+        dbg!(hir::lower(root).collect::<Vec<_>>());
+        
         input.clear();
     }
 }

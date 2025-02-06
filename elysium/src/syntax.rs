@@ -6,6 +6,7 @@ use num_traits::{FromPrimitive, ToPrimitive};
 
 pub type SyntaxNode = rowan::SyntaxNode<ElysiumLanguage>;
 pub type SyntaxToken = rowan::SyntaxToken<ElysiumLanguage>;
+pub type SyntaxElement = rowan::SyntaxElement<ElysiumLanguage>;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ElysiumLanguage {}

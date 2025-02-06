@@ -93,7 +93,7 @@ impl<'t, 'input> Parser<'t, 'input> {
         let current_token = self.source.peek_token();
 
         let (found, range) = if let Some(Token { kind, range, .. }) = current_token {
-            (Some((*kind).into()), *range)
+            (Some(*kind), *range)
         } else {
             (
                 None,

@@ -1,5 +1,5 @@
 use crate::{
-    ast::{self, Expr, Literal},
+    ast::{self, Expr},
     syntax, Stmt,
 };
 use smartstring::alias::String;

@@ -1,7 +1,7 @@
 //! Core functionality for parser.
 
 use rowan::GreenNode;
-use syntax::{SyntaxElement, SyntaxNode, SyntaxToken};
+use syntax::SyntaxNode;
 mod ast;
 mod hir;
 mod lexer;

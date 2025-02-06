@@ -1,10 +1,10 @@
-use crate::{ast::Expr, Stmt};
+use crate::{ast::{self, Expr, Literal}, syntax, Stmt};
 use smartstring::alias::String;
 
 #[derive(Debug)]
 pub enum HirStmt {
-    VariableDef { name: String, value: Expr },
-    Expr(Expr),
+    VariableDef { name: String, value: HirExpr },
+    Expr(HirExpr),
 }
 
 impl HirStmt {
@@ -12,9 +12,10 @@ impl HirStmt {
         match ast {
             Stmt::VariableDef(ast) => Some(Self::VariableDef {
                 name: ast.name()?.text().into(),
-                value: Expr::lower(ast.value()),
+                value: HirExpr::lower(ast.value()),
             }),
-            Stmt::Expr(expr) => Some(Self::Expr(Expr::lower(Some(expr)))),
+
+                  Stmt::Expr(expr) => Some(Self::Expr(HirExpr::lower(Some(expr)))),
         }
     }
 }
@@ -39,19 +40,43 @@ pub enum HirExpr {
     Missing,
 }
 
-impl Expr {
+impl HirExpr {
     fn lower(ast: Option<Expr>) -> Self {
-        if let Some(ast) = ast {
-            match ast {
-                Expr::BinaryExpr(binary_expr) => todo!(),
-                Expr::Literal(literal) => todo!(),
-                Expr::ParenExpr(paren_expr) => todo!(),
-                Expr::UnaryExpr(unary_expr) => todo!(),
-                Expr::VariableRef(variable_ref) => todo!(),
-            }
-        } else {
-            Self::Missing
+        ast.map_or_else(|| Self::Missing, |ast| match ast {
+                Expr::BinaryExpr(binary_expr) => Self::lower_binary(binary_expr),
+                Expr::Literal(literal) => Self::Literal { n: literal.parse() },
+                Expr::ParenExpr(paren_expr) => Self::lower(paren_expr.expr()),
+                Expr::UnaryExpr(unary_expr) => Self::lower_unary(unary_expr),
+                Expr::VariableRef(variable_ref) => Self::VariableRef { var: variable_ref.name().into() },
+            })
+    }
+
+    fn lower_binary(ast: ast::BinaryExpr) -> Self {
+        let op = match ast.op().unwrap().kind() {
+            syntax::SyntaxKind::Plus => BinaryOp::Add,
+            
+            syntax::SyntaxKind::Minus => BinaryOp::Sub,
+
+            syntax::SyntaxKind::Star => BinaryOp::Mul,
+
+            syntax::SyntaxKind::Slash => BinaryOp::Div,
+            _ => unreachable!()
+    };
+
+        Self::Binary {
+            op,
+            lhs: Box::new(Self::lower(ast.lhs())),
+            rhs: Box::new(Self::lower(ast.rhs()))
         }
+    }
+
+    fn lower_unary(ast: ast::UnaryExpr) -> Self {
+        let op = match ast.op().unwrap().kind() {
+            syntax::SyntaxKind::Minus => UnaryOp::Neg,
+            _ => unreachable!()
+       };
+
+       Self::Unary { op, expr: Box::new(Self::lower(ast.expr())) }
     }
 }
 
@@ -66,4 +91,9 @@ pub enum BinaryOp {
 #[derive(Debug)]
 pub enum UnaryOp {
     Neg,
+}
+
+
+pub fn lower(ast: ast::Root) -> impl Iterator<Item = HirStmt> {
+    ast.stmts().filter_map(HirStmt::lower)
 }

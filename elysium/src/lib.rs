@@ -1,12 +1,13 @@
 //! Core functionality for parser.
 
 use rowan::GreenNode;
-use syntax::{SyntaxNode, SyntaxToken};
+use syntax::{SyntaxElement, SyntaxNode, SyntaxToken};
 mod ast;
+mod hir;
 mod lexer;
 mod parser;
 mod syntax;
-
+pub use ast::{Root, Stmt};
 pub use parser::parse;
 
 /// AST like structure.
@@ -20,16 +21,18 @@ impl Parse {
     pub fn debug_tree(&self) -> String {
         let mut s = String::new();
 
-        let syntax_node = SyntaxNode::new_root(self.green_node.clone());
-        let tree = format!("{syntax_node:#?}");
+        let tree = format!("{:#?}", self.syntax());
 
         s.push_str(&tree[0..tree.len() - 1]);
 
         for error in &self.errors {
             s.push_str(&format!("\n{error}"));
         }
-
         s
+    }
+
+    pub fn syntax(&self) -> SyntaxNode {
+        SyntaxNode::new_root(self.green_node.clone())
     }
 }
 
@@ -47,7 +50,7 @@ mod tests {
 
     #[test]
     fn parse_nothing() {
-        check("", expect![[r#"Root@0..0"#]]);
+        check("", expect![[r"Root@0..0"]]);
     }
 
     #[test]

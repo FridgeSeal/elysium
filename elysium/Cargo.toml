@@ -12,6 +12,7 @@ num-derive.workspace = true
 num-traits.workspace = true
 rowan.workspace = true
 smartstring.workspace = true
+la-arena.workspace = true 
 
 [dev-dependencies]
 expect-test.workspace = true

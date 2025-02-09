@@ -1,10 +1,9 @@
 //! Functionality for the AST built on top of the Rowan CST.
 
 use crate::{
-    syntax::{SyntaxKind, SyntaxToken},
+    syntax::{SyntaxElement, SyntaxKind, SyntaxToken},
     SyntaxNode,
 };
-use rowan::SyntaxElement;
 
 #[derive(Debug)]
 pub struct VariableDef(SyntaxNode);
@@ -106,8 +105,8 @@ impl UnaryExpr {
 pub struct VariableRef(SyntaxNode);
 
 impl VariableRef {
-    pub fn name(&self) -> String {
-        self.0.first_token().unwrap().text().to_string()
+    pub fn name(&self) -> Option<SyntaxToken> {
+        self.0.first_token()
     }
 }
 

@@ -35,8 +35,7 @@ impl<'t, 'input> Source<'t, 'input> {
     }
 
     fn peek_kind_raw(&self) -> Option<TokenKind> {
-        self.peek_token_raw()
-            .map(|Token { kind, .. }| (*kind))
+        self.peek_token_raw().map(|Token { kind, .. }| (*kind))
     }
 
     fn eat_trivia(&mut self) {

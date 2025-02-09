@@ -12,7 +12,7 @@ rustflags = [
     "-Dclippy::wildcard_imports",
     "-Wdead_code",
     "-Wwarnings",
-    "-Wmissing_docs",
+    # "-Wmissing_docs",
     # "--cfg",
     # "tokio_unstable",
 ]

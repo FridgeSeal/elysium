@@ -3,7 +3,7 @@
 
 use rowan::GreenNode;
 use syntax::SyntaxNode;
-mod ast;
+pub mod ast;
 pub mod hir;
 mod lexer;
 mod parser;

@@ -1,5 +1,5 @@
 //! Little CLI to drive our core parsing/language logid.
-use elysium::{hir, parse, Root, Stmt};
+use elysium::{ast, hir, parse, Root, Stmt};
 use std::io::{self, Write};
 
 fn main() -> io::Result<()> {
@@ -17,7 +17,13 @@ fn main() -> io::Result<()> {
         let parse = parse(&input);
         println!("{}", parse.debug_tree());
 
-        let root = Root::cast(parse.syntax()).unwrap();
+        let syntax = parse.syntax();
+
+        for error in ast::validation::validate(&syntax) {
+            println!("{error}",);
+        }
+
+        let root = Root::cast(syntax).unwrap();
 
         dbg!(root
             .stmts()

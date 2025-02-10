@@ -1,0 +1,78 @@
+let 
+let bar = 20
+
+l#t 20
+
+l# bar = 220
+
+l# bar = 20
+
+l#t 
+l#t 20
+
+l# bar = 20
+l#t0
+
+l# bar = 20
+
+l#t 20
+
+l#t a #t 20
+
+l# bar = 20
+l#t0
+
+l# bar = 20
+
+l#t 20
+
+l#t a = 05
+let jarbar 0
+
+l#t0
+
+l# bar = 20
+
+l##t 20
+
+l# bar = 20
+
+l#t 20
+
+l#t a = 05
+let jarbar = 20
+
+l#t 20
+
+l# bar = 20
+
+l#t 
+l#t 20
+
+l# bar = 20
+let jarbar = 40
+
+l#t 20
+
+l# bar = 20
+
+l#t 
+l#t 20
+
+l# bar = 20
+l#t0
+
+l# bar = 20
+
+l#t 20
+
+l#t a = 05
+let jarbar = 10
+
+l#t 20
+
+l# bar = 20
+
+l#t 20
+
+l#t a = 05 a#0fo tl

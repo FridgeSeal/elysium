@@ -142,11 +142,11 @@ mod tests {
 
     #[test]
     fn lex_comment() {
-        check("# blah", TokenKind::Comment)
+        check("# blah", TokenKind::Comment);
     }
 
     #[test]
     fn lex_spaces_and_newlines() {
-        check(" \n", TokenKind::Whitespace)
+        check(" \n", TokenKind::Whitespace);
     }
 }

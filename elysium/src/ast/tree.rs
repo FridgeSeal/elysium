@@ -70,9 +70,22 @@ impl BinaryExpr {
 
 #[derive(Debug)]
 pub struct Literal(SyntaxNode);
+
 impl Literal {
-    pub fn parse(&self) -> u64 {
-        self.0.first_token().unwrap().text().parse().unwrap()
+    pub const fn inner(&self) -> &SyntaxNode {
+        &self.0
+    }
+
+    pub fn parse(&self) -> Option<u64> {
+        self.0.first_token().unwrap().text().parse().ok()
+    }
+
+    pub fn cast(node: SyntaxNode) -> Option<Self> {
+        if node.kind() == SyntaxKind::Literal {
+            Some(Self(node))
+        } else {
+            None
+        }
     }
 }
 

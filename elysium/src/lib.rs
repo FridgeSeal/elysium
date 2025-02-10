@@ -71,6 +71,6 @@ Root@0..3
             expect![[r##"
 Root@0..8
   Comment@0..8 "# hello!""##]],
-        )
+        );
     }
 }

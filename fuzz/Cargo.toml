@@ -7,8 +7,8 @@ edition.workspace = true
 cargo-fuzz = true
 
 [[bin]]
-name = "parse_lower"
-path = "fuzz_targets/parse_lower.rs"
+name = "main"
+path = "fuzz_targets/main.rs"
 
 [dependencies]
 libfuzzer-sys.workspace = true
